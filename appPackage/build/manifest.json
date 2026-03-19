@@ -1,0 +1,65 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/teams/v1.19/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.19",
+  "version": "1.0.0",
+  "id": "271fbf41-1218-4f1d-87ce-f898889fb909",
+  "developer": {
+    "name": "EPITECH",
+    "websiteUrl": "https://www.epitech.eu/",
+    "privacyUrl": "https://www.epitech.eu/politique-de-confidentialite/",
+    "termsOfUseUrl": "https://www.epitech.eu/mentions-legales/"
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "name": {
+    "short": "BotTeams",
+    "full": "BotTeams Onboarding POC"
+  },
+  "description": {
+    "short": "Bot Teams d'onboarding pour EPITECH.",
+    "full": "Bot Microsoft Teams de proof of concept pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
+  },
+  "accentColor": "#0A2A43",
+  "bots": [
+    {
+      "botId": "271fbf41-1218-4f1d-87ce-f898889fb909",
+      "scopes": [
+        "personal",
+        "team"
+      ],
+      "supportsFiles": false,
+      "isNotificationOnly": false,
+      "commandLists": [
+        {
+          "scopes": [
+            "personal",
+            "team"
+          ],
+          "commands": [
+            {
+              "title": "help",
+              "description": "Affiche les commandes disponibles."
+            },
+            {
+              "title": "status",
+              "description": "Retourne l'état du bot."
+            },
+            {
+              "title": "ping",
+              "description": "Test simple du canal Teams."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "permissions": [
+    "identity",
+    "messageTeamMembers"
+  ],
+  "validDomains": [
+    "b545-163-5-3-101.ngrok-free.app"
+  ]
+}

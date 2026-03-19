@@ -1,0 +1,34 @@
+{
+  "name": "botteams-onboarding-poc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "POC Microsoft Teams onboarding bot for EPITECH",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "check": "tsc --noEmit -p tsconfig.json",
+    "package:teams": "node scripts/build-teams-package.mjs"
+  },
+  "dependencies": {
+    "@azure/identity": "4.6.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "adm-zip": "^0.5.16",
+    "botbuilder": "^4.22.4",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "isomorphic-fetch": "^3.0.0",
+    "node-cron": "^3.0.3",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.7",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.13.10",
+    "@types/node-cron": "^3.0.11",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

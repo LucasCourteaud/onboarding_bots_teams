@@ -1,0 +1,41 @@
+version: 1
+journey:
+  name: Parcours onboarding EPITECH
+  defaultActiveLimit: 5
+  phases:
+    - key: welcome
+      title: Premiers pas
+      tasks:
+        - id: create-account
+          title: Activer les comptes internes
+          description: Active Teams, GitHub et les outils internes.
+          checklist:
+            - Verifier la reception des acces
+            - Configurer MFA
+            - Tester la connexion GitHub
+          connectorHints:
+            github:
+              repository: epitech/onboarding
+              issueTemplate: account-setup
+        - id: read-handbook
+          title: Lire le handbook EPITECH
+          description: Prendre connaissance des regles de fonctionnement et du support.
+        - id: meet-mentor
+          title: Organiser un point avec le mentor
+          description: Planifier un creneau de 30 minutes pour presenter l'equipe.
+    - key: delivery
+      title: Mise en action
+      tasks:
+        - id: setup-workstation
+          title: Preparer le poste de travail
+          description: Installer les outils standard et valider les acces projet.
+        - id: first-ticket
+          title: Realiser une premiere contribution
+          description: Prendre un ticket simple, livrer une PR et obtenir un review.
+          connectorHints:
+            github:
+              repository: epitech/product-api
+              createIssue: true
+        - id: team-rituals
+          title: Participer aux rituels d'equipe
+          description: Assister au daily, retro et weekly planning.

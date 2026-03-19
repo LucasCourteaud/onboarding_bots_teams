@@ -1,0 +1,31 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Local environment and overrides
+.env
+.env.*
+!.env.example
+
+# Local onboarding config variants
+configs/*.local.yaml
+configs/*.local.yml
+
+# Teams package build output
+appPackage/build/*.zip
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local archives / tunnels
+ngrok.zip
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
