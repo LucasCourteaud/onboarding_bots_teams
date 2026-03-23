@@ -5,36 +5,88 @@ import YAML from "yaml";
 import { z } from "zod";
 
 import { env } from "../config/env";
-import { OnboardingJourneyConfig, OnboardingTaskDefinition } from "../models/onboarding";
+import {
+  OnboardingJourneyConfig,
+  OnboardingMissionDefinition,
+  OnboardingQuestDefinition
+} from "../models/onboarding";
 
-const taskSchema = z.object({
+const connectorHintsSchema = z
+  .object({
+    github: z
+      .object({
+        repository: z.string(),
+        issueTemplate: z.string().optional(),
+        createIssue: z.boolean().optional()
+      })
+      .optional()
+  })
+  .optional();
+
+const questSchema = z.object({
   id: z.string(),
   title: z.string(),
   description: z.string(),
   checklist: z.array(z.string()).optional(),
-  connectorHints: z
-    .object({
-      github: z
-        .object({
-          repository: z.string(),
-          issueTemplate: z.string().optional(),
-          createIssue: z.boolean().optional()
-        })
-        .optional()
+  connectorHints: connectorHintsSchema,
+  difficulty: z.literal("short").optional(),
+  repeatable: z.boolean().optional(),
+  priority: z.number().int().nonnegative().optional(),
+  validation: z.discriminatedUnion("mode", [
+    z.object({
+      mode: z.literal("automatic"),
+      source: z.string(),
+      rule: z.string().optional()
+    }),
+    z.object({
+      mode: z.literal("jenkins"),
+      source: z.string(),
+      jobName: z.string(),
+      successCriteria: z.string().optional(),
+      rule: z.string().optional()
     })
-    .optional()
+  ])
+});
+
+const missionSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  checklist: z.array(z.string()).optional(),
+  connectorHints: connectorHintsSchema,
+  difficulty: z.literal("long").optional(),
+  duration: z.enum(["multi_weeks", "multi_months"]).optional(),
+  repeatable: z.boolean().optional(),
+  unlockCondition: z.object({
+    type: z.literal("completed_quests_in_category"),
+    categoryId: z.string(),
+    requiredCount: z.number().int().positive()
+  }),
+  validation: z.object({
+    mode: z.literal("mentor"),
+    requiredApprovals: z.number().int().positive().optional()
+  })
 });
 
 const configSchema = z.object({
   version: z.number(),
   journey: z.object({
     name: z.string(),
-    defaultActiveLimit: z.number().int().positive(),
-    phases: z.array(
+    defaultActiveQuestLimit: z.number().int().positive(),
+    rules: z.object({
+      questReplacement: z.literal("auto"),
+      missionUnlock: z.object({
+        type: z.literal("completed_quests_in_category"),
+        requiredCount: z.number().int().positive()
+      })
+    }),
+    categories: z.array(
       z.object({
-        key: z.string(),
+        id: z.string(),
         title: z.string(),
-        tasks: z.array(taskSchema)
+        description: z.string(),
+        quests: z.array(questSchema),
+        missions: z.array(missionSchema)
       })
     )
   })
@@ -55,8 +107,25 @@ export class OnboardingConfigLoader {
     return this.cache;
   }
 
-  async flattenTasks(): Promise<OnboardingTaskDefinition[]> {
+  async flattenQuests(): Promise<OnboardingQuestDefinition[]> {
     const config = await this.load();
-    return config.journey.phases.flatMap((phase) => phase.tasks);
+    return config.journey.categories.flatMap((category) =>
+      category.quests.map((quest) => ({
+        ...quest,
+        type: "quest" as const,
+        categoryId: category.id
+      }))
+    );
+  }
+
+  async flattenMissions(): Promise<OnboardingMissionDefinition[]> {
+    const config = await this.load();
+    return config.journey.categories.flatMap((category) =>
+      category.missions.map((mission) => ({
+        ...mission,
+        type: "mission" as const,
+        categoryId: category.id
+      }))
+    );
   }
 }

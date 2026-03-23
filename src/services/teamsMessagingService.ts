@@ -36,6 +36,13 @@ export class TeamsMessagingService {
     return `<p>La tâche <strong>${taskTitle}</strong> est terminée. Le bot va débloquer la suite du parcours si nécessaire.</p>`;
   }
 
+  buildMissionUnlockedMessage(missionTitle: string, categoryTitle: string): string {
+    return [
+      `<p>Nouvelle mission débloquée: <strong>${missionTitle}</strong>.</p>`,
+      `<p>Elle devient disponible après la validation de 3 quêtes dans la catégorie <strong>${categoryTitle}</strong>.</p>`
+    ].join("");
+  }
+
   buildReportMessage(summary: string): string {
     return `<p><strong>Compte rendu onboarding</strong></p><p>${summary}</p>`;
   }

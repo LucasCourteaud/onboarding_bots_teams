@@ -71,7 +71,8 @@ cron.schedule(env.PLANNER_SYNC_CRON, async () => {
         logger.info("Planner sync executed", {
           onboardingId: state.onboardingId,
           completed: result.completed.length,
-          created: result.created.length
+          created: result.created.length,
+          unlockedMissions: result.unlockedMissions.length
         });
       }
     } catch (error) {

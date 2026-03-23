@@ -1,41 +1,76 @@
 version: 1
 journey:
   name: Parcours onboarding EPITECH
-  defaultActiveLimit: 5
-  phases:
-    - key: welcome
-      title: Premiers pas
-      tasks:
-        - id: create-account
-          title: Activer les comptes internes
-          description: Active Teams, GitHub et les outils internes.
-          checklist:
-            - Verifier la reception des acces
-            - Configurer MFA
-            - Tester la connexion GitHub
-          connectorHints:
-            github:
-              repository: epitech/onboarding
-              issueTemplate: account-setup
-        - id: read-handbook
-          title: Lire le handbook EPITECH
-          description: Prendre connaissance des regles de fonctionnement et du support.
-        - id: meet-mentor
-          title: Organiser un point avec le mentor
-          description: Planifier un creneau de 30 minutes pour presenter l'equipe.
-    - key: delivery
-      title: Mise en action
-      tasks:
-        - id: setup-workstation
-          title: Preparer le poste de travail
-          description: Installer les outils standard et valider les acces projet.
-        - id: first-ticket
-          title: Realiser une premiere contribution
-          description: Prendre un ticket simple, livrer une PR et obtenir un review.
-          connectorHints:
-            github:
-              repository: epitech/product-api
-              createIssue: true
-        - id: team-rituals
-          title: Participer aux rituels d'equipe
-          description: Assister au daily, retro et weekly planning.
+  defaultActiveQuestLimit: 5
+  rules:
+    questReplacement: auto
+    missionUnlock:
+      type: completed_quests_in_category
+      requiredCount: 3
+  categories:
+    - id: teams
+      title: Teams
+      description: Prise en main de la communication et des outils collaboratifs.
+      quests:
+        - id: teams-send-channel-message
+          title: Envoyer un message dans un canal Teams
+          description: Poster un message de presentation dans le canal d'equipe.
+          priority: 10
+          validation:
+            mode: automatic
+            source: teams
+            rule: message_posted_in_channel
+        - id: teams-react-message
+          title: Reagir a un message
+          description: Ajouter une reaction sur un message dans le canal de promo.
+          priority: 20
+          validation:
+            mode: jenkins
+            source: jenkins
+            jobName: validate-teams-reaction
+            successCriteria: SUCCESS
+      missions:
+        - id: teams-local-module-owner
+          title: Responsable local d'un module
+          description: Etre responsable d'un module dans sa ville pour une promotion sur plusieurs semaines.
+          duration: multi_weeks
+          unlockCondition:
+            type: completed_quests_in_category
+            categoryId: teams
+            requiredCount: 3
+          validation:
+            mode: mentor
+            requiredApprovals: 1
+    - id: community
+      title: Vie locale
+      description: Implication dans la vie de la promo et du campus.
+      quests:
+        - id: community-join-event
+          title: Participer a un evenement local
+          description: Etre present a un evenement de la promo ou du campus.
+          priority: 10
+          validation:
+            mode: automatic
+            source: manual-proof
+            rule: attendance_recorded
+        - id: community-share-recap
+          title: Partager un recap de promotion
+          description: Publier un recap utile dans le canal local de la promo.
+          priority: 20
+          validation:
+            mode: jenkins
+            source: jenkins
+            jobName: validate-community-recap
+            successCriteria: SUCCESS
+      missions:
+        - id: community-city-referent
+          title: Referent local
+          description: Prendre en charge un sujet local pour la promo dans sa ville.
+          duration: multi_weeks
+          unlockCondition:
+            type: completed_quests_in_category
+            categoryId: community
+            requiredCount: 3
+          validation:
+            mode: mentor
+            requiredApprovals: 1

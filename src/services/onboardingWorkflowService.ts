@@ -1,6 +1,9 @@
 import { env } from "../config/env";
 import { ExternalConnector } from "../connectors/baseConnector";
 import {
+  OnboardingJourneyConfig,
+  OnboardingMissionDefinition,
+  OnboardingQuestDefinition,
   OnboardingRequest,
   OnboardingState,
   PlannerTaskSnapshot,
@@ -25,6 +28,7 @@ export class OnboardingWorkflowService {
 
   async start(request: OnboardingRequest): Promise<StartOnboardingResult> {
     const config = await this.configLoader.load();
+    const allQuests = await this.configLoader.flattenQuests();
     const planId = request.planId ?? env.DEFAULT_PLANNER_PLAN_ID;
 
     if (!planId) {
@@ -37,14 +41,15 @@ export class OnboardingWorkflowService {
       this.teamsMessagingService.buildWelcomeMessage(request.onboardee, request.mentor)
     );
 
-    const allTasks = config.journey.phases.flatMap((phase) => phase.tasks);
-    const initialTasks = allTasks.slice(0, Math.min(config.journey.defaultActiveLimit, env.MAX_ACTIVE_TASKS));
+    const initialQuests = allQuests.slice(0, Math.min(config.journey.defaultActiveQuestLimit, env.MAX_ACTIVE_TASKS));
     const createdTasks: PlannerTaskSnapshot[] = [];
+    const plannerTaskDefinitions: Record<string, string> = {};
 
-    for (const task of initialTasks) {
-      const created = await this.plannerService.createTask(planId, task, request.onboardee.aadUserId);
+    for (const quest of initialQuests) {
+      const created = await this.plannerService.createTask(planId, quest, request.onboardee.aadUserId);
       createdTasks.push(created);
-      await Promise.all(this.connectors.map((connector) => connector.onTaskCreated(request, task)));
+      plannerTaskDefinitions[created.id] = quest.id;
+      await Promise.all(this.connectors.map((connector) => connector.onTaskCreated(request, quest)));
     }
 
     this.states.set(request.onboardingId, {
@@ -55,9 +60,18 @@ export class OnboardingWorkflowService {
       onboardee: request.onboardee,
       mentor: request.mentor,
       manager: request.manager,
-      queuedTaskIds: allTasks.slice(initialTasks.length).map((task) => task.id),
+      queuedQuestIds: allQuests.slice(initialQuests.length).map((quest) => quest.id),
+      activeQuestIds: initialQuests.map((quest) => quest.id),
+      completedQuestIds: [],
+      questHistory: [],
+      unlockedMissionIds: [],
+      missionStates: [],
+      statsByCategory: Object.fromEntries(
+        config.journey.categories.map((category) => [category.id, { completedQuestCount: 0 }])
+      ),
       createdTaskIds: createdTasks.map((task) => task.id),
-      notifiedCompletedTaskIds: []
+      notifiedCompletedTaskIds: [],
+      plannerTaskDefinitions
     });
 
     logger.info("Onboarding started", {
@@ -79,13 +93,17 @@ export class OnboardingWorkflowService {
     return this.states.get(onboardingId);
   }
 
-  async syncCompletedTasks(onboardingId: string): Promise<{ completed: PlannerTaskSnapshot[]; created: PlannerTaskSnapshot[] }> {
+  async syncCompletedTasks(
+    onboardingId: string
+  ): Promise<{ completed: PlannerTaskSnapshot[]; created: PlannerTaskSnapshot[]; unlockedMissions: OnboardingMissionDefinition[] }> {
     const state = this.getRequiredState(onboardingId);
     const config = await this.configLoader.load();
-    const definitions = config.journey.phases.flatMap((phase) => phase.tasks);
+    const quests = await this.configLoader.flattenQuests();
+    const missions = await this.configLoader.flattenMissions();
 
     const completed = await this.plannerService.listCompletedTasks(state.planId, state.notifiedCompletedTaskIds);
     const created: PlannerTaskSnapshot[] = [];
+    const unlockedMissions: OnboardingMissionDefinition[] = [];
 
     for (const task of completed) {
       state.notifiedCompletedTaskIds.push(task.id);
@@ -94,22 +112,39 @@ export class OnboardingWorkflowService {
         this.teamsMessagingService.buildTaskCompletionMessage(task.title)
       );
 
-      const definition = definitions.find((item) => item.title === task.title || item.id === task.definitionId);
-      if (definition) {
-        await Promise.all(
-          this.connectors.map((connector) =>
-            connector.onTaskCompleted(
-              {
-                onboardingId: state.onboardingId,
-                onboardee: state.onboardee,
-                mentor: state.mentor,
-                manager: state.manager,
-                teamId: state.teamId,
-                planId: state.planId
-              },
-              definition
-            )
+      const definitionId = state.plannerTaskDefinitions[task.id] ?? task.definitionId;
+      const definition = quests.find((quest) => quest.id === definitionId || quest.title === task.title);
+      if (!definition) {
+        continue;
+      }
+
+      this.recordQuestCompletion(state, definition);
+      delete state.plannerTaskDefinitions[task.id];
+
+      await Promise.all(
+        this.connectors.map((connector) =>
+          connector.onTaskCompleted(
+            {
+              onboardingId: state.onboardingId,
+              onboardee: state.onboardee,
+              mentor: state.mentor,
+              manager: state.manager,
+              teamId: state.teamId,
+              planId: state.planId
+            },
+            definition
           )
+        )
+      );
+
+      const newlyUnlocked = this.unlockMissions(state, config, missions, definition.categoryId);
+      unlockedMissions.push(...newlyUnlocked);
+
+      for (const mission of newlyUnlocked) {
+        const category = config.journey.categories.find((item) => item.id === mission.categoryId);
+        await this.teamsMessagingService.sendChatMessage(
+          state.chatId,
+          this.teamsMessagingService.buildMissionUnlockedMessage(mission.title, category?.title ?? mission.categoryId)
         );
       }
     }
@@ -118,14 +153,16 @@ export class OnboardingWorkflowService {
     const activeTasks = currentTasks.filter((task) => task.percentComplete < 100);
     const capacity = Math.max(0, env.MAX_ACTIVE_TASKS - activeTasks.length);
 
-    for (const definitionId of state.queuedTaskIds.splice(0, capacity)) {
-      const definition = definitions.find((task) => task.id === definitionId);
+    for (const definitionId of state.queuedQuestIds.splice(0, capacity)) {
+      const definition = quests.find((quest) => quest.id === definitionId);
       if (!definition) {
         continue;
       }
 
       const newTask = await this.plannerService.createTask(state.planId, definition, state.onboardee.aadUserId);
       state.createdTaskIds.push(newTask.id);
+      state.activeQuestIds.push(definition.id);
+      state.plannerTaskDefinitions[newTask.id] = definition.id;
       created.push(newTask);
 
       await Promise.all(
@@ -145,7 +182,7 @@ export class OnboardingWorkflowService {
       );
     }
 
-    return { completed, created };
+    return { completed, created, unlockedMissions };
   }
 
   async sendReport(onboardingId: string): Promise<void> {
@@ -165,5 +202,64 @@ export class OnboardingWorkflowService {
     }
 
     return state;
+  }
+
+  private recordQuestCompletion(state: OnboardingState, quest: OnboardingQuestDefinition): void {
+    state.activeQuestIds = state.activeQuestIds.filter((questId) => questId !== quest.id);
+    if (!state.completedQuestIds.includes(quest.id)) {
+      state.completedQuestIds.push(quest.id);
+    }
+
+    state.questHistory.push({
+      questId: quest.id,
+      categoryId: quest.categoryId,
+      status: "validated",
+      validatedAt: new Date().toISOString(),
+      validation: {
+        mode: quest.validation.mode,
+        source: quest.validation.source
+      }
+    });
+
+    const categoryStats = state.statsByCategory[quest.categoryId] ?? { completedQuestCount: 0 };
+    categoryStats.completedQuestCount += 1;
+    state.statsByCategory[quest.categoryId] = categoryStats;
+  }
+
+  private unlockMissions(
+    state: OnboardingState,
+    config: OnboardingJourneyConfig,
+    missions: OnboardingMissionDefinition[],
+    categoryId: string
+  ): OnboardingMissionDefinition[] {
+    const completedQuestCount = state.statsByCategory[categoryId]?.completedQuestCount ?? 0;
+    if (completedQuestCount === 0) {
+      return [];
+    }
+
+    return missions.filter((mission) => {
+      if (mission.categoryId !== categoryId) {
+        return false;
+      }
+
+      if (state.unlockedMissionIds.includes(mission.id)) {
+        return false;
+      }
+
+      const minimumCount = mission.unlockCondition.requiredCount ?? config.journey.rules.missionUnlock.requiredCount;
+      if (completedQuestCount < minimumCount) {
+        return false;
+      }
+
+      state.unlockedMissionIds.push(mission.id);
+      state.missionStates.push({
+        missionId: mission.id,
+        categoryId: mission.categoryId,
+        status: "unlocked",
+        validatedAt: null,
+        validatedBy: null
+      });
+      return true;
+    });
   }
 }

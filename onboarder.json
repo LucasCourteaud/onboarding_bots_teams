@@ -1,0 +1,72 @@
+{
+  "userId": "aad-user-123",
+  "displayName": "Lucas Martin",
+  "activeQuestIds": [
+    "teams-send-channel-message",
+    "teams-react-message",
+    "community-join-event",
+    "community-share-recap",
+    "quest-placeholder-5"
+  ],
+  "completedQuestIds": [
+    "teams-read-guidelines",
+    "teams-present-yourself",
+    "teams-join-standup"
+  ],
+  "questHistory": [
+    {
+      "questId": "teams-send-channel-message",
+      "categoryId": "teams",
+      "status": "validated",
+      "validatedAt": "2026-02-23T10:15:00Z",
+      "validation": {
+        "mode": "automatic",
+        "source": "teams"
+      }
+    },
+    {
+      "questId": "teams-react-message",
+      "categoryId": "teams",
+      "status": "validated",
+      "validatedAt": "2026-02-24T11:00:00Z",
+      "validation": {
+        "mode": "jenkins",
+        "source": "jenkins"
+      }
+    },
+    {
+      "questId": "teams-join-standup",
+      "categoryId": "teams",
+      "status": "validated",
+      "validatedAt": "2026-02-25T09:00:00Z",
+      "validation": {
+        "mode": "automatic",
+        "source": "teams"
+      }
+    }
+  ],
+  "unlockedMissionIds": [
+    "teams-local-module-owner"
+  ],
+  "missionStates": [
+    {
+      "missionId": "teams-local-module-owner",
+      "categoryId": "teams",
+      "status": "unlocked",
+      "validatedAt": null,
+      "validatedBy": null
+    }
+  ],
+  "statsByCategory": {
+    "teams": {
+      "completedQuestCount": 3
+    },
+    "community": {
+      "completedQuestCount": 0
+    }
+  },
+  "plannerTaskDefinitions": {
+    "planner-task-1": "teams-send-channel-message",
+    "planner-task-2": "teams-react-message"
+  }
+}

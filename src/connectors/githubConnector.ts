@@ -1,11 +1,11 @@
 import { ExternalConnector } from "./baseConnector";
-import { OnboardingRequest, OnboardingTaskDefinition } from "../models/onboarding";
+import { OnboardingQuestDefinition, OnboardingRequest } from "../models/onboarding";
 import { logger } from "../utils/logger";
 
 export class GitHubConnector implements ExternalConnector {
   readonly name = "github";
 
-  async onTaskCreated(request: OnboardingRequest, task: OnboardingTaskDefinition): Promise<void> {
+  async onTaskCreated(request: OnboardingRequest, task: OnboardingQuestDefinition): Promise<void> {
     if (!task.connectorHints?.github) {
       return;
     }
@@ -17,7 +17,7 @@ export class GitHubConnector implements ExternalConnector {
     });
   }
 
-  async onTaskCompleted(request: OnboardingRequest, task: OnboardingTaskDefinition): Promise<void> {
+  async onTaskCompleted(request: OnboardingRequest, task: OnboardingQuestDefinition): Promise<void> {
     if (!task.connectorHints?.github) {
       return;
     }

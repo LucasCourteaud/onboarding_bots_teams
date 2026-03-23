@@ -16,7 +16,7 @@ export class ReportingService {
     return [
       `Onboardé: ${state.onboardee.displayName}`,
       `Mentor: ${state.mentor.displayName}`,
-      `Tâches complétées: ${completed.length}/${tasks.length}`,
+      `Quêtes complétées: ${completed.length}/${tasks.length}`,
       `Progression globale: ${completionRate}%`,
       blockers
     ].join("<br />");

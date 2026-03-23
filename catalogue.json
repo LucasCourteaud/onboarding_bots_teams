@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "journey": {
+    "name": "Onboarding EPITECH",
+    "defaultActiveQuestLimit": 5,
+    "rules": {
+      "questReplacement": "auto",
+      "missionUnlock": {
+        "type": "completed_quests_in_category",
+        "requiredCount": 3
+      }
+    },
+    "categories": [
+      {
+        "id": "teams",
+        "title": "Teams",
+        "description": "Prise en main de la communication et des outils collaboratifs.",
+        "quests": [
+          {
+            "id": "teams-send-channel-message",
+            "title": "Envoyer un message dans un canal Teams",
+            "description": "Poster un message de présentation dans le canal d'équipe.",
+            "priority": 10,
+            "validation": {
+              "mode": "automatic",
+              "source": "teams",
+              "rule": "message_posted_in_channel"
+            }
+          },
+          {
+            "id": "teams-react-message",
+            "title": "Réagir à un message",
+            "description": "Ajouter une réaction sur un message dans le canal de promo.",
+            "priority": 20,
+            "validation": {
+              "mode": "jenkins",
+              "source": "jenkins",
+              "jobName": "validate-teams-reaction",
+              "successCriteria": "SUCCESS"
+            }
+          }
+        ],
+        "missions": [
+          {
+            "id": "teams-local-module-owner",
+            "title": "Responsable local d'un module",
+            "description": "Être responsable d'un module dans sa ville pour une promotion sur plusieurs semaines.",
+            "validation": {
+              "mode": "mentor"
+            }
+          }
+        ]
+      },
+      {
+        "id": "community",
+        "title": "Vie locale",
+        "description": "Implication dans la vie de la promo et du campus.",
+        "quests": [
+          {
+            "id": "community-join-event",
+            "title": "Participer à un événement local",
+            "description": "Être présent à un événement de la promo ou du campus.",
+            "priority": 10,
+            "validation": {
+              "mode": "automatic",
+              "source": "manual-proof",
+              "rule": "attendance_recorded"
+            }
+          },
+          {
+            "id": "community-share-recap",
+            "title": "Partager un récap de promotion",
+            "description": "Publier un récap utile dans le canal local de la promo.",
+            "priority": 20,
+            "validation": {
+              "mode": "jenkins",
+              "source": "jenkins",
+              "jobName": "validate-community-recap",
+              "successCriteria": "SUCCESS"
+            }
+          }
+        ],
+        "missions": [
+          {
+            "id": "community-city-referent",
+            "title": "Référent local",
+            "description": "Prendre en charge un sujet local pour la promo dans sa ville.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "community",
+              "requiredCount": 3
+            },
+            "validation": {
+              "mode": "mentor",
+              "requiredApprovals": 1
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,5 +1,5 @@
 import { graphClient } from "../graph/graphClient";
-import { OnboardingTaskDefinition, PlannerTaskSnapshot } from "../models/onboarding";
+import { OnboardingQuestDefinition, PlannerTaskSnapshot } from "../models/onboarding";
 
 interface GraphPlannerTask {
   id: string;
@@ -22,7 +22,7 @@ export class PlannerService {
     }));
   }
 
-  async createTask(planId: string, task: OnboardingTaskDefinition, assigneeAadId: string): Promise<PlannerTaskSnapshot> {
+  async createTask(planId: string, task: OnboardingQuestDefinition, assigneeAadId: string): Promise<PlannerTaskSnapshot> {
     const plannerTask = await graphClient.api("/planner/tasks").post({
       planId,
       title: task.title,

@@ -8,7 +8,7 @@ POC Microsoft Teams pour structurer l'onboarding des nouveaux arrivants chez EPI
 flowchart LR
     A[Teams User / Mentor / Manager] --> B[Teams Bot\nBot Framework + Express]
     B --> C[Onboarding Workflow Service]
-    C --> D[Config Loader\nYAML / JSON]
+    C --> D[Config Loader\nJSON / YAML]
     C --> E[Teams Messaging Service]
     C --> F[Planner Service]
     C --> G[Reporting Service]
@@ -22,7 +22,7 @@ flowchart LR
 ### Composants
 
 - `Teams Bot`: point d'entrée conversationnel pour Teams, avec réponses simples (`help`, `status`) et extension future vers des commandes métier.
-- `Onboarding Workflow Service`: orchestre le message de bienvenue, la création du chat mentor/onboardé, la création des tâches Planner et le maintien d'un plafond de tâches actives.
+- `Onboarding Workflow Service`: orchestre le message de bienvenue, la création des quêtes Planner, le maintien de 5 quêtes actives maximum et le déblocage des missions par catégorie.
 - `Planner Service`: encapsule l'accès Graph pour lister, créer et clôturer les tâches Planner.
 - `Teams Messaging Service`: crée un chat Teams entre mentor et onboardé puis envoie les notifications.
 - `Reporting Service`: produit un récapitulatif bimensuel et l'envoie au manager.
@@ -33,6 +33,8 @@ flowchart LR
 ```text
 .
 ├── configs/
+│   ├── onboarding.sample.json
+│   ├── onboarding.sample.json
 │   └── onboarding.sample.yaml
 ├── src/
 │   ├── bot/
@@ -119,6 +121,16 @@ Exemple de payload `POST /api/onboarding/start`:
   "teamId": "teams-team-id"
 }
 ```
+
+## Format du catalogue
+
+Le catalogue d'onboarding est maintenant structuré autour de catégories, quêtes et missions.
+
+- `defaultActiveQuestLimit`: nombre maximum de quêtes actives simultanément pour un onboardé.
+- `categories[].quests[]`: quêtes courtes, validées automatiquement ou via Jenkins.
+- `categories[].missions[]`: objectifs plus longs, débloqués après 3 quêtes validées dans la catégorie, puis validés par un mentor.
+
+Le fichier de référence prêt à l'emploi est `configs/onboarding.sample.json`.
 
 ## Choix techniques
 
