@@ -16,11 +16,11 @@ export function registerOnboardingSchedulers(workflow: OnboardingWorkflowService
             completed: result.completed.length,
             created: result.created.length,
             unlockedMissions: result.unlockedMissions.length,
-            msg: "Planner sync executed"
+            msg: "Onboarding sync executed"
           });
         }
       } catch (error) {
-        logger.error({ onboardingId: state.onboardingId, err: toError(error), msg: "Planner sync failed" });
+        logger.error({ onboardingId: state.onboardingId, err: toError(error), msg: "Onboarding sync failed" });
       }
     }
   });

@@ -49,6 +49,10 @@
             {
               "title": "ping",
               "description": "Test simple du canal Teams."
+            },
+            {
+              "title": "missions",
+              "description": "Affiche les missions locales attribuees au premier contact."
             }
           ]
         }
@@ -60,6 +64,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "phytoclimatological-timothy-surprisedly.ngrok-free.dev"
+    "056f-2a01-e0a-8bb-1880-5014-3c96-edeb-73de.ngrok-free.app"
   ]
 }

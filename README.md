@@ -1,11 +1,11 @@
 # BotTeams Onboarding
 
-Bot Microsoft Teams d'onboarding construit avec Node.js, TypeScript, Bot Framework et Microsoft Graph.
+Bot Microsoft Teams d'onboarding construit avec Node.js, TypeScript et Bot Framework.
 
 Le projet fournit deux usages complementaires:
 
 - un bot Teams conversationnel pour accueillir l'utilisateur, exposer des commandes simples et attribuer des missions locales
-- une API HTTP pour piloter un workflow d'onboarding plus riche avec Teams, Planner et reporting
+- une API HTTP pour piloter un workflow d'onboarding plus riche avec notifications, taches locales et reporting
 
 ## Stack technique
 
@@ -13,7 +13,6 @@ Le projet fournit deux usages complementaires:
 - TypeScript 5
 - Express
 - Microsoft Bot Framework
-- Microsoft Graph SDK
 - Zod pour la validation
 - Pino pour le logging structure
 
@@ -66,12 +65,6 @@ Les variables sont validees au demarrage.
 - `BOT_APP_TYPE`: `SingleTenant` ou `MultiTenant`
 - `BOT_APP_TENANT_ID`: tenant Entra utilise pour un bot single-tenant
 
-### Microsoft Graph
-
-- `GRAPH_TENANT_ID`
-- `GRAPH_CLIENT_ID`
-- `GRAPH_CLIENT_SECRET`
-
 ### Packaging Teams
 
 - `PUBLIC_HOSTNAME`: domaine public sans protocole pour le manifeste Teams
@@ -82,7 +75,7 @@ Les variables sont validees au demarrage.
 - `ONBOARDING_CONFIG_PATH`: chemin du catalogue onboarding
 - `MAX_ACTIVE_TASKS`: limite de quetes actives simultanees
 - `REPORT_CRON`: cron du reporting periodique
-- `PLANNER_SYNC_CRON`: cron de synchronisation Planner
+- `PLANNER_SYNC_CRON`: cron de synchronisation des taches locales
 - `LOG_LEVEL`: niveau de logs Pino
 
 Un exemple complet est fourni dans [.env.example](/home/lucky/Epitech/onboarding_bots_teams/.env.example).
@@ -126,7 +119,7 @@ Pour une distribution organisationnelle, remplace `ngrok` par une URL HTTPS stab
 Le projet est structure pour etre facilement etendu, mais certaines briques restent orientees POC:
 
 - stockage en memoire
-- dependance aux permissions Graph applicatives pour les fonctions avancees
+- notifications et taches avancees simulees localement
 - absence de tests unitaires automatises
 
 Les fondations sont maintenant pretes pour une evolution vers une architecture plus persistante et un deploiement Azure stable.

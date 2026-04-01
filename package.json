@@ -13,13 +13,10 @@
     "package:teams": "node scripts/build-teams-package.mjs"
   },
   "dependencies": {
-    "@azure/identity": "4.6.0",
-    "@microsoft/microsoft-graph-client": "^3.0.7",
     "adm-zip": "^0.5.16",
     "botbuilder": "^4.22.4",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "isomorphic-fetch": "^3.0.0",
     "node-cron": "^3.0.3",
     "pino": "^10.3.1",
     "yaml": "^2.7.0",

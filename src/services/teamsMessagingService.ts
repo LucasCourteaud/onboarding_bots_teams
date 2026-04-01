@@ -1,4 +1,4 @@
-import { TeamsChatGateway } from "../adapters/graph/graphTeamsChatAdapter";
+import { TeamsChatGateway } from "../adapters/local/localTeamsChatGateway";
 import { PersonProfile } from "../models/onboarding";
 
 export class TeamsMessagingService {

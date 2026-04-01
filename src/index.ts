@@ -1,9 +1,8 @@
 import express, { Request, Response } from "express";
 import { BotFrameworkAdapter, ConversationState, MemoryStorage, UserState } from "botbuilder";
 
-import { GraphPlannerAdapter } from "./adapters/graph/graphPlannerAdapter";
-import { GraphTeamsChatAdapter } from "./adapters/graph/graphTeamsChatAdapter";
-import { createGraphClient } from "./adapters/graph/createGraphClient";
+import { LocalTaskGateway } from "./adapters/local/localTaskGateway";
+import { LocalTeamsChatGateway } from "./adapters/local/localTeamsChatGateway";
 import { TeamsOnboardingBot } from "./bot/teamsOnboardingBot";
 import { appConfig } from "./config";
 import { GitHubConnector } from "./connectors/githubConnector";
@@ -25,7 +24,6 @@ const memoryStorage = new MemoryStorage();
 const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 const configLoader = new OnboardingConfigLoader();
-const graphClient = createGraphClient();
 
 const adapter = new BotFrameworkAdapter({
   appId: appConfig.bot.appId,
@@ -39,11 +37,11 @@ adapter.onTurnError = async (context, error) => {
   await conversationState.clear(context);
 };
 
-const teamsMessagingService = new TeamsMessagingService(new GraphTeamsChatAdapter(graphClient));
+const teamsMessagingService = new TeamsMessagingService(new LocalTeamsChatGateway());
 const reportingService = new ReportingService(teamsMessagingService);
 const workflow = new OnboardingWorkflowService(
   configLoader,
-  new PlannerService(new GraphPlannerAdapter(graphClient)),
+  new PlannerService(new LocalTaskGateway()),
   teamsMessagingService,
   reportingService,
   [new GitHubConnector()]

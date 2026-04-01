@@ -1,4 +1,4 @@
-import { PlannerGateway } from "../adapters/graph/graphPlannerAdapter";
+import { PlannerGateway } from "../adapters/local/localTaskGateway";
 import { OnboardingQuestDefinition, PlannerTaskSnapshot } from "../models/onboarding";
 
 export class PlannerService {
