@@ -1,46 +1,55 @@
-import cron from "node-cron";
 import express, { Request, Response } from "express";
 import { BotFrameworkAdapter, ConversationState, MemoryStorage, UserState } from "botbuilder";
 
+import { GraphPlannerAdapter } from "./adapters/graph/graphPlannerAdapter";
+import { GraphTeamsChatAdapter } from "./adapters/graph/graphTeamsChatAdapter";
+import { createGraphClient } from "./adapters/graph/createGraphClient";
 import { TeamsOnboardingBot } from "./bot/teamsOnboardingBot";
-import { env } from "./config/env";
+import { appConfig } from "./config";
 import { GitHubConnector } from "./connectors/githubConnector";
+import { BotMessageController } from "./controllers/botMessageController";
+import { OnboardingController } from "./controllers/onboardingController";
+import { errorHandler } from "./middlewares/errorHandler";
 import { createOnboardingRouter } from "./routes/onboardingRoutes";
 import { OnboardingConfigLoader } from "./services/onboardingConfigLoader";
 import { LocalMissionAssignmentService } from "./services/localMissionAssignmentService";
+import { registerOnboardingSchedulers } from "./services/onboardingScheduler";
 import { OnboardingWorkflowService } from "./services/onboardingWorkflowService";
 import { PlannerService } from "./services/plannerService";
 import { ReportingService } from "./services/reportingService";
 import { TeamsMessagingService } from "./services/teamsMessagingService";
 import { logger } from "./utils/logger";
+import { toError } from "./utils/errors";
 
 const memoryStorage = new MemoryStorage();
 const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 const configLoader = new OnboardingConfigLoader();
+const graphClient = createGraphClient();
 
 const adapter = new BotFrameworkAdapter({
-  appId: env.BOT_APP_ID,
-  appPassword: env.BOT_APP_PASSWORD,
-  channelAuthTenant: env.BOT_APP_TYPE === "SingleTenant" ? env.BOT_APP_TENANT_ID || undefined : undefined
+  appId: appConfig.bot.appId,
+  appPassword: appConfig.bot.appPassword,
+  channelAuthTenant: appConfig.bot.channelAuthTenant
 });
 
 adapter.onTurnError = async (context, error) => {
-  logger.error("Unhandled bot error", { error: error instanceof Error ? error.message : String(error) });
+  logger.error({ err: toError(error) }, "Unhandled bot error");
   await context.sendActivity("Une erreur est survenue côté bot.");
   await conversationState.clear(context);
 };
 
-const bot = new TeamsOnboardingBot(new LocalMissionAssignmentService(configLoader));
-const teamsMessagingService = new TeamsMessagingService();
+const teamsMessagingService = new TeamsMessagingService(new GraphTeamsChatAdapter(graphClient));
 const reportingService = new ReportingService(teamsMessagingService);
 const workflow = new OnboardingWorkflowService(
   configLoader,
-  new PlannerService(),
+  new PlannerService(new GraphPlannerAdapter(graphClient)),
   teamsMessagingService,
   reportingService,
   [new GitHubConnector()]
 );
+const bot = new TeamsOnboardingBot(new BotMessageController(new LocalMissionAssignmentService(configLoader)));
+const onboardingController = new OnboardingController(workflow);
 
 const app = express();
 app.use(express.json());
@@ -57,50 +66,11 @@ app.post("/api/messages", async (req: Request, res: Response) => {
   });
 });
 
-app.use("/api/onboarding", createOnboardingRouter(workflow));
+app.use("/api/onboarding", createOnboardingRouter(onboardingController));
+app.use(errorHandler);
 
-app.use((error: unknown, _req: Request, res: Response, _next: express.NextFunction) => {
-  logger.error("HTTP request failed", {
-    error: error instanceof Error ? error.message : String(error)
-  });
-  res.status(500).json({ error: error instanceof Error ? error.message : "Unknown error" });
-});
+registerOnboardingSchedulers(workflow);
 
-cron.schedule(env.PLANNER_SYNC_CRON, async () => {
-  for (const state of workflow.listStates()) {
-    try {
-      const result = await workflow.syncCompletedTasks(state.onboardingId);
-      if (result.completed.length > 0 || result.created.length > 0) {
-        logger.info("Planner sync executed", {
-          onboardingId: state.onboardingId,
-          completed: result.completed.length,
-          created: result.created.length,
-          unlockedMissions: result.unlockedMissions.length
-        });
-      }
-    } catch (error) {
-      logger.error("Planner sync failed", {
-        onboardingId: state.onboardingId,
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  }
-});
-
-cron.schedule(env.REPORT_CRON, async () => {
-  for (const state of workflow.listStates()) {
-    try {
-      await workflow.sendReport(state.onboardingId);
-      logger.info("Bi-monthly report sent", { onboardingId: state.onboardingId });
-    } catch (error) {
-      logger.error("Bi-monthly report failed", {
-        onboardingId: state.onboardingId,
-        error: error instanceof Error ? error.message : String(error)
-      });
-    }
-  }
-});
-
-app.listen(env.PORT, () => {
-  logger.info("BotTeams POC listening", { port: env.PORT });
+app.listen(appConfig.server.port, () => {
+  logger.info({ port: appConfig.server.port }, "BotTeams POC listening");
 });

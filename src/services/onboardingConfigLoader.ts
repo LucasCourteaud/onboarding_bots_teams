@@ -4,7 +4,7 @@ import path from "node:path";
 import YAML from "yaml";
 import { z } from "zod";
 
-import { env } from "../config/env";
+import { appConfig } from "../config";
 import {
   OnboardingJourneyConfig,
   OnboardingMissionDefinition,
@@ -95,12 +95,14 @@ const configSchema = z.object({
 export class OnboardingConfigLoader {
   private cache?: OnboardingJourneyConfig;
 
+  constructor(private readonly configPath = appConfig.onboarding.configPath) {}
+
   async load(): Promise<OnboardingJourneyConfig> {
     if (this.cache) {
       return this.cache;
     }
 
-    const absolutePath = path.resolve(process.cwd(), env.ONBOARDING_CONFIG_PATH);
+    const absolutePath = path.resolve(process.cwd(), this.configPath);
     const rawContent = await fs.readFile(absolutePath, "utf-8");
     const parsed = absolutePath.endsWith(".json") ? JSON.parse(rawContent) : YAML.parse(rawContent);
     this.cache = configSchema.parse(parsed);

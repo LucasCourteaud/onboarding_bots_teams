@@ -1,21 +1,9 @@
-type LogContext = Record<string, unknown>;
+import pino from "pino";
 
-function formatContext(context?: LogContext): string {
-  if (!context || Object.keys(context).length === 0) {
-    return "";
-  }
+import { appConfig } from "../config";
 
-  return ` ${JSON.stringify(context)}`;
-}
-
-export const logger = {
-  info(message: string, context?: LogContext): void {
-    console.log(`[INFO] ${message}${formatContext(context)}`);
-  },
-  warn(message: string, context?: LogContext): void {
-    console.warn(`[WARN] ${message}${formatContext(context)}`);
-  },
-  error(message: string, context?: LogContext): void {
-    console.error(`[ERROR] ${message}${formatContext(context)}`);
-  }
-};
+export const logger = pino({
+  level: appConfig.logging.level,
+  timestamp: pino.stdTimeFunctions.isoTime,
+  base: undefined
+});

@@ -1,4 +1,4 @@
-import { env } from "../config/env";
+import { appConfig } from "../config";
 import { ExternalConnector } from "../connectors/baseConnector";
 import {
   OnboardingJourneyConfig,
@@ -10,6 +10,7 @@ import {
   StartOnboardingResult
 } from "../models/onboarding";
 import { logger } from "../utils/logger";
+import { AppError } from "../utils/errors";
 import { OnboardingConfigLoader } from "./onboardingConfigLoader";
 import { PlannerService } from "./plannerService";
 import { ReportingService } from "./reportingService";
@@ -29,10 +30,10 @@ export class OnboardingWorkflowService {
   async start(request: OnboardingRequest): Promise<StartOnboardingResult> {
     const config = await this.configLoader.load();
     const allQuests = await this.configLoader.flattenQuests();
-    const planId = request.planId ?? env.DEFAULT_PLANNER_PLAN_ID;
+    const planId = request.planId ?? appConfig.onboarding.defaults.planId;
 
     if (!planId) {
-      throw new Error("Planner planId is required");
+      throw new AppError("Planner planId is required", 400);
     }
 
     const chatId = await this.teamsMessagingService.createMentorChat(request.onboardee, request.mentor);
@@ -41,7 +42,7 @@ export class OnboardingWorkflowService {
       this.teamsMessagingService.buildWelcomeMessage(request.onboardee, request.mentor)
     );
 
-    const initialQuests = allQuests.slice(0, Math.min(config.journey.defaultActiveQuestLimit, env.MAX_ACTIVE_TASKS));
+    const initialQuests = allQuests.slice(0, Math.min(config.journey.defaultActiveQuestLimit, appConfig.onboarding.maxActiveTasks));
     const createdTasks: PlannerTaskSnapshot[] = [];
     const plannerTaskDefinitions: Record<string, string> = {};
 
@@ -74,12 +75,7 @@ export class OnboardingWorkflowService {
       plannerTaskDefinitions
     });
 
-    logger.info("Onboarding started", {
-      onboardingId: request.onboardingId,
-      chatId,
-      planId,
-      initialTaskCount: createdTasks.length
-    });
+    logger.info({ onboardingId: request.onboardingId, chatId, planId, initialTaskCount: createdTasks.length }, "Onboarding started");
 
     return {
       onboardingId: request.onboardingId,
@@ -151,7 +147,7 @@ export class OnboardingWorkflowService {
 
     const currentTasks = await this.plannerService.listTasks(state.planId);
     const activeTasks = currentTasks.filter((task) => task.percentComplete < 100);
-    const capacity = Math.max(0, env.MAX_ACTIVE_TASKS - activeTasks.length);
+    const capacity = Math.max(0, appConfig.onboarding.maxActiveTasks - activeTasks.length);
 
     for (const definitionId of state.queuedQuestIds.splice(0, capacity)) {
       const definition = quests.find((quest) => quest.id === definitionId);
@@ -198,7 +194,7 @@ export class OnboardingWorkflowService {
   private getRequiredState(onboardingId: string): OnboardingState {
     const state = this.states.get(onboardingId);
     if (!state) {
-      throw new Error(`Unknown onboardingId ${onboardingId}`);
+      throw new AppError(`Unknown onboardingId ${onboardingId}`, 404);
     }
 
     return state;

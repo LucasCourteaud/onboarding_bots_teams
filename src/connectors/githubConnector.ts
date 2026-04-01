@@ -10,11 +10,14 @@ export class GitHubConnector implements ExternalConnector {
       return;
     }
 
-    logger.info("GitHub connector placeholder on task created", {
-      onboardingId: request.onboardingId,
-      taskId: task.id,
-      repository: task.connectorHints.github.repository
-    });
+    logger.info(
+      {
+        onboardingId: request.onboardingId,
+        taskId: task.id,
+        repository: task.connectorHints.github.repository
+      },
+      "GitHub connector placeholder on task created"
+    );
   }
 
   async onTaskCompleted(request: OnboardingRequest, task: OnboardingQuestDefinition): Promise<void> {
@@ -22,10 +25,13 @@ export class GitHubConnector implements ExternalConnector {
       return;
     }
 
-    logger.info("GitHub connector placeholder on task completed", {
-      onboardingId: request.onboardingId,
-      taskId: task.id,
-      repository: task.connectorHints.github.repository
-    });
+    logger.info(
+      {
+        onboardingId: request.onboardingId,
+        taskId: task.id,
+        repository: task.connectorHints.github.repository
+      },
+      "GitHub connector placeholder on task completed"
+    );
   }
 }

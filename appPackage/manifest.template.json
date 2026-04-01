@@ -49,6 +49,10 @@
             {
               "title": "ping",
               "description": "Test simple du canal Teams."
+            },
+            {
+              "title": "missions",
+              "description": "Affiche les missions locales attribuees au premier contact."
             }
           ]
         }

@@ -1,27 +1,15 @@
-import { graphClient } from "../graph/graphClient";
+import { TeamsChatGateway } from "../adapters/graph/graphTeamsChatAdapter";
 import { PersonProfile } from "../models/onboarding";
 
 export class TeamsMessagingService {
-  async createMentorChat(onboardee: PersonProfile, mentor: PersonProfile): Promise<string> {
-    const response = await graphClient.api("/chats").post({
-      chatType: "group",
-      members: [onboardee, mentor].map((member) => ({
-        "@odata.type": "#microsoft.graph.aadUserConversationMember",
-        roles: [],
-        "user@odata.bind": `https://graph.microsoft.com/v1.0/users('${member.aadUserId}')`
-      }))
-    });
+  constructor(private readonly teamsChatGateway: TeamsChatGateway) {}
 
-    return response.id as string;
+  async createMentorChat(onboardee: PersonProfile, mentor: PersonProfile): Promise<string> {
+    return this.teamsChatGateway.createChat([onboardee, mentor]);
   }
 
   async sendChatMessage(chatId: string, message: string): Promise<void> {
-    await graphClient.api(`/chats/${chatId}/messages`).post({
-      body: {
-        contentType: "html",
-        content: message
-      }
-    });
+    await this.teamsChatGateway.sendMessage(chatId, message);
   }
 
   buildWelcomeMessage(onboardee: PersonProfile, mentor: PersonProfile): string {
