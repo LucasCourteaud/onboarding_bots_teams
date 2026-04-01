@@ -17,6 +17,28 @@
         "description": "Prise en main de la communication et des outils collaboratifs.",
         "quests": [
           {
+            "id": "teams-read-guidelines",
+            "title": "Lire les consignes Teams",
+            "description": "Prendre connaissance des regles de communication et des usages de l'equipe sur Teams.",
+            "priority": 5,
+            "validation": {
+              "mode": "automatic",
+              "source": "teams",
+              "rule": "guidelines_viewed"
+            }
+          },
+          {
+            "id": "teams-present-yourself",
+            "title": "Se presenter a l'equipe",
+            "description": "Publier un court message de presentation dans le canal d'accueil ou d'equipe.",
+            "priority": 8,
+            "validation": {
+              "mode": "automatic",
+              "source": "teams",
+              "rule": "introduction_posted"
+            }
+          },
+          {
             "id": "teams-send-channel-message",
             "title": "Envoyer un message dans un canal Teams",
             "description": "Poster un message de présentation dans le canal d'équipe.",
@@ -38,6 +60,17 @@
               "jobName": "validate-teams-reaction",
               "successCriteria": "SUCCESS"
             }
+          },
+          {
+            "id": "teams-join-standup",
+            "title": "Participer a un stand-up",
+            "description": "Assister a un point d'equipe et partager ton avancement de maniere concise.",
+            "priority": 30,
+            "validation": {
+              "mode": "automatic",
+              "source": "teams",
+              "rule": "standup_attended"
+            }
           }
         ],
         "missions": [
@@ -45,8 +78,45 @@
             "id": "teams-local-module-owner",
             "title": "Responsable local d'un module",
             "description": "Être responsable d'un module dans sa ville pour une promotion sur plusieurs semaines.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "teams",
+              "requiredCount": 3
+            },
             "validation": {
-              "mode": "mentor"
+              "mode": "mentor",
+              "requiredApprovals": 1
+            }
+          },
+          {
+            "id": "teams-standup-facilitator",
+            "title": "Facilitateur de stand-up",
+            "description": "Preparer et animer un point d'equipe court pour fluidifier le partage d'informations.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "teams",
+              "requiredCount": 3
+            },
+            "validation": {
+              "mode": "mentor",
+              "requiredApprovals": 1
+            }
+          },
+          {
+            "id": "teams-onboarding-buddy",
+            "title": "Buddy d'onboarding Teams",
+            "description": "Accompagner un nouvel arrivant sur les premiers usages Teams et les rituels de communication.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "teams",
+              "requiredCount": 3
+            },
+            "validation": {
+              "mode": "mentor",
+              "requiredApprovals": 1
             }
           }
         ]
@@ -85,6 +155,36 @@
             "id": "community-city-referent",
             "title": "Référent local",
             "description": "Prendre en charge un sujet local pour la promo dans sa ville.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "community",
+              "requiredCount": 3
+            },
+            "validation": {
+              "mode": "mentor",
+              "requiredApprovals": 1
+            }
+          },
+          {
+            "id": "community-event-host",
+            "title": "Animateur d'evenement local",
+            "description": "Organiser ou coorganiser un temps fort local pour renforcer la cohesion de promo.",
+            "duration": "multi_weeks",
+            "unlockCondition": {
+              "type": "completed_quests_in_category",
+              "categoryId": "community",
+              "requiredCount": 3
+            },
+            "validation": {
+              "mode": "mentor",
+              "requiredApprovals": 1
+            }
+          },
+          {
+            "id": "community-newcomer-guide",
+            "title": "Guide des nouveaux arrivants",
+            "description": "Structurer un mini parcours d'accueil local pour aider les prochains onboardes.",
             "duration": "multi_weeks",
             "unlockCondition": {
               "type": "completed_quests_in_category",

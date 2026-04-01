@@ -7,6 +7,7 @@ import { env } from "./config/env";
 import { GitHubConnector } from "./connectors/githubConnector";
 import { createOnboardingRouter } from "./routes/onboardingRoutes";
 import { OnboardingConfigLoader } from "./services/onboardingConfigLoader";
+import { LocalMissionAssignmentService } from "./services/localMissionAssignmentService";
 import { OnboardingWorkflowService } from "./services/onboardingWorkflowService";
 import { PlannerService } from "./services/plannerService";
 import { ReportingService } from "./services/reportingService";
@@ -16,10 +17,12 @@ import { logger } from "./utils/logger";
 const memoryStorage = new MemoryStorage();
 const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
+const configLoader = new OnboardingConfigLoader();
 
 const adapter = new BotFrameworkAdapter({
   appId: env.BOT_APP_ID,
-  appPassword: env.BOT_APP_PASSWORD
+  appPassword: env.BOT_APP_PASSWORD,
+  channelAuthTenant: env.BOT_APP_TYPE === "SingleTenant" ? env.BOT_APP_TENANT_ID || undefined : undefined
 });
 
 adapter.onTurnError = async (context, error) => {
@@ -28,11 +31,11 @@ adapter.onTurnError = async (context, error) => {
   await conversationState.clear(context);
 };
 
-const bot = new TeamsOnboardingBot();
+const bot = new TeamsOnboardingBot(new LocalMissionAssignmentService(configLoader));
 const teamsMessagingService = new TeamsMessagingService();
 const reportingService = new ReportingService(teamsMessagingService);
 const workflow = new OnboardingWorkflowService(
-  new OnboardingConfigLoader(),
+  configLoader,
   new PlannerService(),
   teamsMessagingService,
   reportingService,

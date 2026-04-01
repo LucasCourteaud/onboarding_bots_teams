@@ -18,7 +18,7 @@
     "full": "BotTeams Onboarding POC"
   },
   "description": {
-    "short": "Bot Teams d'onboarding pour EPITECH.",
+    "short": "Bot Teams d'onboarding pour MyEPITECH.",
     "full": "Bot Microsoft Teams de proof of concept pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
   },
   "accentColor": "#0A2A43",
@@ -60,6 +60,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "b545-163-5-3-101.ngrok-free.app"
+    "phytoclimatological-timothy-surprisedly.ngrok-free.dev"
   ]
 }
