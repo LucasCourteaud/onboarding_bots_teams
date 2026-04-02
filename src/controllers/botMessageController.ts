@@ -1,5 +1,6 @@
-import { CardFactory, MessageFactory, TurnContext } from "botbuilder";
+import { MessageFactory, TurnContext } from "botbuilder";
 
+import { createWelcomeCard } from "../cards/welcomeCard";
 import { AssignedMission, LocalMissionAssignmentService } from "../services/localMissionAssignmentService";
 
 export class BotMessageController {
@@ -16,7 +17,7 @@ export class BotMessageController {
       const result = await this.missionAssignmentService.ensureAssignments(userId, displayName);
 
       if (result.firstVisit) {
-        await context.sendActivity(this.buildWelcomeActivity(displayName, result.assignments));
+        await context.sendActivity({ attachments: [createWelcomeCard()] });
       }
     }
   }
@@ -26,9 +27,15 @@ export class BotMessageController {
     const displayName = context.activity.from?.name ?? "Utilisateur";
     const { firstVisit, assignments } = await this.missionAssignmentService.ensureAssignments(userId, displayName);
     const text = TurnContext.removeRecipientMention(context.activity)?.toLowerCase().trim() ?? "";
+    const action = this.getSubmittedAction(context);
 
     if (firstVisit) {
-      await context.sendActivity(this.buildWelcomeActivity(displayName, assignments));
+      await context.sendActivity({ attachments: [createWelcomeCard()] });
+    }
+
+    if (action === "start_onboarding") {
+      await this.handleStartOnboarding(context, userId, assignments);
+      return;
     }
 
     switch (text) {
@@ -49,17 +56,21 @@ export class BotMessageController {
     }
   }
 
-  private buildWelcomeActivity(displayName: string, assignments: AssignedMission[]) {
-    const assignmentSummary = assignments.length === 0
-      ? "Aucune mission n'est configuree pour le moment."
-      : assignments.map(({ categoryTitle, mission }) => `${categoryTitle}: ${mission.title}`).join("\n");
+  private async handleStartOnboarding(
+    context: TurnContext,
+    userId: string,
+    assignments: AssignedMission[]
+  ): Promise<void> {
 
-    return MessageFactory.attachment(
-      CardFactory.heroCard(
-        "BotTeams Onboarding",
-        `${displayName}, bienvenue. Je t'ai attribue une mission locale par categorie pour demarrer ton parcours.\n\n${assignmentSummary}`
-      )
-    );
+    const assignedMissions = assignments.length === 0
+      ? this.missionAssignmentService.getAssignments(userId)
+      : assignments;
+
+    if (assignedMissions.length > 0) {
+      await context.sendActivity(this.buildAssignedMissionsMessage(assignedMissions));
+    }
+
+    await this.prepareOnboardingStart(userId);
   }
 
   private buildAssignedMissionsMessage(assignments: AssignedMission[]): string {
@@ -73,6 +84,20 @@ export class BotMessageController {
         ({ categoryTitle, mission }) => `- ${categoryTitle}: ${mission.title} - ${mission.description}`
       )
     ].join("\n");
+  }
+
+  // Placeholder pour le futur branchement du workflow d'onboarding applicatif.
+  private async prepareOnboardingStart(_userId: string): Promise<void> {
+    return Promise.resolve();
+  }
+
+  private getSubmittedAction(context: TurnContext): string | undefined {
+    const value = context.activity.value;
+    if (!value || typeof value !== "object") {
+      return undefined;
+    }
+
+    return "action" in value && typeof value.action === "string" ? value.action : undefined;
   }
 
   private getUserId(account?: { id?: string; aadObjectId?: string }): string {
