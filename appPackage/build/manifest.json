@@ -18,7 +18,7 @@
     "full": "BotTeams Onboarding POC"
   },
   "description": {
-    "short": "Bot Teams d'onboarding pour MyEPITECH.",
+    "short": "Bot Teams d'onboarding pour EPITECH.",
     "full": "Bot Microsoft Teams de proof of concept pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
   },
   "accentColor": "#0A2A43",
@@ -64,6 +64,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "056f-2a01-e0a-8bb-1880-5014-3c96-edeb-73de.ngrok-free.app"
+    "onboarding-epitech-hnegb3gqcubqbuec.westeurope-01.azurewebsites.net"
   ]
 }

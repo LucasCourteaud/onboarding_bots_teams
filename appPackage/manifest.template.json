@@ -18,7 +18,7 @@
     "full": "BotTeams Onboarding POC"
   },
   "description": {
-    "short": "Bot Teams d'onboarding pour MyEPITECH.",
+    "short": "Bot Teams d'onboarding pour EPITECH.",
     "full": "Bot Microsoft Teams de proof of concept pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
   },
   "accentColor": "#0A2A43",
