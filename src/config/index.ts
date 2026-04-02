@@ -11,12 +11,6 @@ export const appConfig = {
     tenantId: env.BOT_APP_TENANT_ID,
     channelAuthTenant: env.BOT_APP_TYPE === "SingleTenant" ? env.BOT_APP_TENANT_ID || undefined : undefined
   },
-  graph: {
-    tenantId: env.GRAPH_TENANT_ID,
-    clientId: env.GRAPH_CLIENT_ID,
-    clientSecret: env.GRAPH_CLIENT_SECRET,
-    scope: "https://graph.microsoft.com/.default"
-  },
   onboarding: {
     configPath: env.ONBOARDING_CONFIG_PATH,
     maxActiveTasks: env.MAX_ACTIVE_TASKS,

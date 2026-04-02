@@ -41,13 +41,13 @@ Commandes conversationnelles actuelles:
 
 - Valide le payload.
 - Charge le catalogue.
-- Cree un chat mentor/onboarde via Graph.
-- Cree les taches Planner initiales.
+- Cree un chat mentor/onboarde via l'adapter local.
+- Cree les taches initiales dans le stockage local.
 - Enregistre l'etat onboarding en memoire.
 
 ### `POST /api/onboarding/sync`
 
-- Relit les taches Planner completees.
+- Relit les taches locales completees.
 - Met a jour l'etat onboarding.
 - Debloque des missions quand le seuil de quetes est atteint.
 
@@ -64,5 +64,5 @@ Commandes conversationnelles actuelles:
 ## Limites actuelles
 
 - Les attributions locales et les etats onboarding sont volatiles.
-- Les operations avancees dependent des permissions Microsoft Graph applicatives.
+- Les chats et taches de workflow restent simules localement.
 - Le bot ne declenche pas encore tout le workflow onboarding depuis le chat Teams seul.

@@ -10,15 +10,15 @@ Le bot est concu pour une application Microsoft Entra ID configuree en `Single t
 
 Champs a renseigner dans Azure:
 
-- `Application (client) ID`: valeur injectee dans `BOT_APP_ID` et, par defaut, dans `GRAPH_CLIENT_ID` si la meme app sert pour Graph.
-- `Directory (tenant) ID`: valeur injectee dans `BOT_APP_TENANT_ID` et `GRAPH_TENANT_ID`.
+- `Application (client) ID`: valeur injectee dans `BOT_APP_ID`.
+- `Directory (tenant) ID`: valeur injectee dans `BOT_APP_TENANT_ID`.
 - `Supported account types`: `Accounts in this organizational directory only`.
 
 ## Secret client
 
 - Creer un `Client secret` dans `Certificates & secrets`.
 - Copier la `Value` du secret au moment de sa creation.
-- Stocker cette valeur dans `BOT_APP_PASSWORD` et `GRAPH_CLIENT_SECRET` si la meme App Registration est reutilisee.
+- Stocker cette valeur dans `BOT_APP_PASSWORD`.
 
 Ne jamais versionner le secret dans le depot.
 
@@ -52,42 +52,12 @@ Limites:
 - dependance a la machine du developpeur
 - non adapte a une distribution durable dans l'organisation
 
-## OAuth
-
-Le projet n'active pas encore de flux OAuth utilisateur.
-
-Etat actuel:
-
-- pas de `Connection Name` Bot Framework
-- pas de login utilisateur Teams/Microsoft 365 dans le bot
-- appels Graph realises via `client credentials`
-
-Amelioration recommandee:
-
-- introduire un flux OAuth Bot Framework si des permissions Graph deleguees doivent etre consommees
-- conserver `client credentials` pour les operations purement applicatives
-
-## Permissions Graph applicatives
-
-Permissions minimales a evaluer selon les features actives:
-
-- `Chat.Create`
-- `Chat.ReadWrite.All`
-- `Tasks.ReadWrite.All`
-- `Group.Read.All`
-- `User.Read.All`
-
-Le consentement administrateur doit etre accorde sur le tenant cible.
-
 ## Variables d'environnement reliees a Azure
 
 - `BOT_APP_ID`
 - `BOT_APP_PASSWORD`
 - `BOT_APP_TYPE`
 - `BOT_APP_TENANT_ID`
-- `GRAPH_TENANT_ID`
-- `GRAPH_CLIENT_ID`
-- `GRAPH_CLIENT_SECRET`
 - `PUBLIC_HOSTNAME`
 - `TEAMS_APP_ID`
 
@@ -96,5 +66,4 @@ Le consentement administrateur doit etre accorde sur le tenant cible.
 - Stocker les secrets dans Azure App Service Configuration ou Azure Key Vault.
 - Eviter `ngrok` pour un usage organisationnel durable.
 - Remplacer le secret client par une `Managed Identity` en production Azure quand c'est possible.
-- Limiter les permissions Graph au strict necessaire.
 - Verifier que les fichiers `.env` ne sont jamais partages ni commits.

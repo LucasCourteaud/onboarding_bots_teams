@@ -30,11 +30,7 @@ export class OnboardingWorkflowService {
   async start(request: OnboardingRequest): Promise<StartOnboardingResult> {
     const config = await this.configLoader.load();
     const allQuests = await this.configLoader.flattenQuests();
-    const planId = request.planId ?? appConfig.onboarding.defaults.planId;
-
-    if (!planId) {
-      throw new AppError("Planner planId is required", 400);
-    }
+    const planId = request.planId ?? appConfig.onboarding.defaults.planId ?? request.onboardingId;
 
     const chatId = await this.teamsMessagingService.createMentorChat(request.onboardee, request.mentor);
     await this.teamsMessagingService.sendChatMessage(
