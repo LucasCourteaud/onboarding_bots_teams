@@ -13,6 +13,8 @@ const envSchema = z.object({
   DEFAULT_PLANNER_PLAN_ID: z.string().optional(),
   DEFAULT_MANAGER_AAD_ID: z.string().optional(),
   DEFAULT_MENTOR_AAD_ID: z.string().optional(),
+  DEFAULT_MENTOR_NAME: z.string().optional(),
+  DEFAULT_MENTOR_EMAIL: z.string().email().optional(),
   ONBOARDING_CONFIG_PATH: z.string().default("./configs/onboarding.sample.json"),
   MAX_ACTIVE_TASKS: z.coerce.number().default(5),
   REPORT_CRON: z.string().default("0 9 1,15 * *"),

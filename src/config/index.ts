@@ -18,7 +18,9 @@ export const appConfig = {
       teamId: env.DEFAULT_TEAM_ID,
       planId: env.DEFAULT_PLANNER_PLAN_ID,
       managerAadId: env.DEFAULT_MANAGER_AAD_ID,
-      mentorAadId: env.DEFAULT_MENTOR_AAD_ID
+      mentorAadId: env.DEFAULT_MENTOR_AAD_ID,
+      mentorName: env.DEFAULT_MENTOR_NAME,
+      mentorEmail: env.DEFAULT_MENTOR_EMAIL
     }
   },
   jobs: {

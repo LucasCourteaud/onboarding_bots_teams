@@ -12,6 +12,7 @@ import { errorHandler } from "./middlewares/errorHandler";
 import { createOnboardingRouter } from "./routes/onboardingRoutes";
 import { OnboardingConfigLoader } from "./services/onboardingConfigLoader";
 import { LocalMissionAssignmentService } from "./services/localMissionAssignmentService";
+import { OnboarderDirectoryService } from "./services/onboarderDirectoryService";
 import { registerOnboardingSchedulers } from "./services/onboardingScheduler";
 import { OnboardingWorkflowService } from "./services/onboardingWorkflowService";
 import { PlannerService } from "./services/plannerService";
@@ -46,7 +47,12 @@ const workflow = new OnboardingWorkflowService(
   reportingService,
   [new GitHubConnector()]
 );
-const bot = new TeamsOnboardingBot(new BotMessageController(new LocalMissionAssignmentService(configLoader)));
+const bot = new TeamsOnboardingBot(
+  new BotMessageController(
+    new LocalMissionAssignmentService(configLoader),
+    new OnboarderDirectoryService()
+  )
+);
 const onboardingController = new OnboardingController(workflow);
 
 const app = express();

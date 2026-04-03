@@ -1,10 +1,16 @@
 import { MessageFactory, TurnContext } from "botbuilder";
 
+import { createMentorCard } from "../cards/mentorCard";
 import { createWelcomeCard } from "../cards/welcomeCard";
+import { appConfig } from "../config";
 import { AssignedMission, LocalMissionAssignmentService } from "../services/localMissionAssignmentService";
+import { OnboarderDirectoryService } from "../services/onboarderDirectoryService";
 
 export class BotMessageController {
-  constructor(private readonly missionAssignmentService: LocalMissionAssignmentService) {}
+  constructor(
+    private readonly missionAssignmentService: LocalMissionAssignmentService,
+    private readonly onboarderDirectoryService: OnboarderDirectoryService
+  ) {}
 
   async handleMembersAdded(context: TurnContext): Promise<void> {
     for (const member of context.activity.membersAdded ?? []) {
@@ -14,6 +20,7 @@ export class BotMessageController {
 
       const userId = this.getUserId(member);
       const displayName = member.name ?? "Utilisateur";
+      await this.onboarderDirectoryService.ensureAssignment(userId, displayName);
       const result = await this.missionAssignmentService.ensureAssignments(userId, displayName);
 
       if (result.firstVisit) {
@@ -25,6 +32,7 @@ export class BotMessageController {
   async handleMessage(context: TurnContext): Promise<void> {
     const userId = this.getUserId(context.activity.from);
     const displayName = context.activity.from?.name ?? "Utilisateur";
+    await this.onboarderDirectoryService.ensureAssignment(userId, displayName);
     const { firstVisit, assignments } = await this.missionAssignmentService.ensureAssignments(userId, displayName);
     const text = TurnContext.removeRecipientMention(context.activity)?.toLowerCase().trim() ?? "";
     const action = this.getSubmittedAction(context);
@@ -40,7 +48,7 @@ export class BotMessageController {
 
     switch (text) {
       case "help":
-        await context.sendActivity("Commandes disponibles: `help`, `status`, `ping`, `missions`.");
+        await context.sendActivity("Commandes disponibles: `help`, `status`, `ping`, `missions`, `mentor`.");
         return;
       case "status":
         await context.sendActivity("Le bot est actif. Une mission locale par categorie est attribuee au premier contact, et les orchestrations avancees restent disponibles via les endpoints HTTP du POC.");
@@ -50,6 +58,9 @@ export class BotMessageController {
         return;
       case "missions":
         await context.sendActivity(this.buildAssignedMissionsMessage(assignments));
+        return;
+      case "mentor":
+        await this.sendMentorCard(context, userId, displayName);
         return;
       default:
         await context.sendActivity("Commande non reconnue. Tape `help` pour voir les commandes disponibles.");
@@ -84,6 +95,27 @@ export class BotMessageController {
         ({ categoryTitle, mission }) => `- ${categoryTitle}: ${mission.title} - ${mission.description}`
       )
     ].join("\n");
+  }
+
+  private async sendMentorCard(context: TurnContext, userId: string, displayName: string): Promise<void> {
+    const mentor = await this.onboarderDirectoryService.findMentorByUserId(userId, displayName);
+    const mentorName = mentor.displayName ?? appConfig.onboarding.defaults.mentorName;
+    const mentorEmail = mentor.email ?? appConfig.onboarding.defaults.mentorEmail;
+
+    if (!mentorName || !mentorEmail) {
+      await context.sendActivity(`Aucun mentor n'est configure pour ${displayName} pour le moment.`);
+      return;
+    }
+
+    await context.sendActivity({
+      attachments: [
+        createMentorCard({
+          displayName: mentorName,
+          email: mentorEmail,
+          tenantId: appConfig.bot.tenantId || undefined
+        })
+      ]
+    });
   }
 
   // Placeholder pour le futur branchement du workflow d'onboarding applicatif.

@@ -14,12 +14,12 @@
     "outline": "outline.png"
   },
   "name": {
-    "short": "BotTeams",
-    "full": "BotTeams Onboarding POC"
+    "short": "Onboarding",
+    "full": "Onboarding EPITECH"
   },
   "description": {
-    "short": "Bot Teams d'onboarding pour EPITECH.",
-    "full": "Bot Microsoft Teams de proof of concept pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
+    "short": "Bot d'onboarding pour EPITECH.",
+    "full": "Bot Microsoft Teams pour automatiser le parcours d'onboarding, les notifications Planner et le reporting EPITECH."
   },
   "accentColor": "#0A2A43",
   "bots": [
@@ -64,6 +64,6 @@
     "messageTeamMembers"
   ],
   "validDomains": [
-    "onboarding-epitech-hnegb3gqcubqbuec.westeurope-01.azurewebsites.net"
+    "phytoclimatological-timothy-surprisedly.ngrok-free.dev"
   ]
 }

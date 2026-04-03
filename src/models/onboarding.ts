@@ -6,6 +6,27 @@ export interface PersonProfile {
   team?: string;
 }
 
+export interface MentorProfile extends PersonProfile {
+  onboardeeIds: string[];
+}
+
+export interface OnboarderDirectoryEntry {
+  userId: string;
+  displayName: string;
+  mentorId: string;
+}
+
+export interface ResolvedOnboarderDirectoryEntry {
+  userId: string;
+  displayName: string;
+  mentor: PersonProfile;
+}
+
+export interface OnboarderDirectoryData {
+  mentors?: MentorProfile[];
+  profiles: OnboarderDirectoryEntry[];
+}
+
 export interface ConnectorHints {
   github?: {
     repository: string;
