@@ -4,15 +4,32 @@
       "aadUserId": "aad-mentor-001",
       "displayName": "Lucas Courteaud",
       "email": "lucas1.courteaud@epitech.eu",
+      "city": "Lyon",
+      "poste": "DPR",
       "onboardeeIds": [
-        "aad-user-123"
+        "aad-user-123",
+        "d3c89c95-73a6-4f87-887d-cb739d71c886"
       ]
+    },
+    {
+      "aadUserId": "",
+      "displayName": "Mentor EPITECH",
+      "email": "mentor.onboarding@epitech.eu",
+      "onboardeeIds": []
     }
   ],
   "profiles": [
     {
       "userId": "aad-user-123",
       "displayName": "Alexyan Comino",
+      "mentorId": "aad-mentor-001",
+      "city": "Paris",
+      "poste": "APE",
+      "manager": "Leo Sarochar"
+    },
+    {
+      "userId": "d3c89c95-73a6-4f87-887d-cb739d71c886",
+      "displayName": "Lucas Courteaud",
       "mentorId": "aad-mentor-001"
     }
   ]

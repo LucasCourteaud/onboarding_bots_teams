@@ -28,7 +28,7 @@ export class ReportingService {
     }
 
     const message = this.buildBiMonthlySummary(state, tasks);
-    const managerChatId = await this.teamsMessagingService.createMentorChat(state.manager, state.mentor);
+    const managerChatId = await this.teamsMessagingService.createDirectChat(state.manager, state.mentor);
     await this.teamsMessagingService.sendChatMessage(
       managerChatId,
       this.teamsMessagingService.buildReportMessage(message)

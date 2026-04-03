@@ -2,6 +2,8 @@ export interface PersonProfile {
   aadUserId: string;
   displayName: string;
   email: string;
+  city?: string;
+  poste?: string;
   role?: string;
   team?: string;
 }
@@ -14,11 +16,17 @@ export interface OnboarderDirectoryEntry {
   userId: string;
   displayName: string;
   mentorId: string;
+  city?: string;
+  poste?: string;
+  manager?: string;
 }
 
 export interface ResolvedOnboarderDirectoryEntry {
   userId: string;
   displayName: string;
+  city?: string;
+  poste?: string;
+  manager?: string;
   mentor: PersonProfile;
 }
 

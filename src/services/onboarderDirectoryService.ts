@@ -16,6 +16,8 @@ const personSchema = z.object({
   aadUserId: z.string(),
   displayName: z.string(),
   email: z.string().email(),
+  city: z.string().optional(),
+  poste: z.string().optional(),
   role: z.string().optional(),
   team: z.string().optional()
 });
@@ -27,20 +29,26 @@ const mentorSchema = personSchema.extend({
 const onboarderEntrySchema = z.object({
   userId: z.string(),
   displayName: z.string(),
-  mentorId: z.string()
+  mentorId: z.string(),
+  city: z.string().optional(),
+  poste: z.string().optional(),
+  manager: z.string().optional()
 });
 
 const legacyOnboarderEntrySchema = z.object({
   userId: z.string(),
   displayName: z.string(),
-  mentor: personSchema
+  city: z.string().optional(),
+  poste: z.string().optional(),
+  manager: z.string().optional(),
+  mentor: mentorSchema
 });
 
 const onboarderDirectorySchema = z.union([
   onboarderEntrySchema,
   legacyOnboarderEntrySchema,
   z.object({
-    mentors: z.array(z.union([personSchema, mentorSchema])).optional(),
+    mentors: z.array(mentorSchema).optional(),
     profiles: z.array(z.union([onboarderEntrySchema, legacyOnboarderEntrySchema]))
   })
 ]);
@@ -173,6 +181,9 @@ export class OnboarderDirectoryService {
       return {
         userId: entry.userId,
         displayName: entry.displayName,
+        city: entry.city,
+        poste: entry.poste,
+        manager: entry.manager,
         mentorId: entry.mentor.aadUserId
       };
     }
@@ -212,6 +223,9 @@ export class OnboarderDirectoryService {
     return {
       userId: entry.userId,
       displayName: entry.displayName,
+      city: entry.city,
+      poste: entry.poste,
+      manager: entry.manager,
       mentor: this.mentorsById.get(entry.mentorId) ?? this.genericMentor
     };
   }

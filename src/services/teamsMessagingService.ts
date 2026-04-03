@@ -20,6 +20,10 @@ export class TeamsMessagingService {
     ].join("");
   }
 
+  createDirectChat(person1: PersonProfile, person2: PersonProfile): Promise<string> {
+    return this.teamsChatGateway.createChat([person1, person2]);
+  }
+
   buildTaskCompletionMessage(taskTitle: string): string {
     return `<p>La tâche <strong>${taskTitle}</strong> est terminée. Le bot va débloquer la suite du parcours si nécessaire.</p>`;
   }
