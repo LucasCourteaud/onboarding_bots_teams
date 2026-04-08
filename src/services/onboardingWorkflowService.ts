@@ -134,9 +134,14 @@ export class OnboardingWorkflowService {
 
       for (const mission of newlyUnlocked) {
         const category = config.journey.categories.find((item) => item.id === mission.categoryId);
+        const requiredCount = mission.unlockCondition.requiredCount ?? config.journey.rules.missionUnlock.requiredCount;
         await this.teamsMessagingService.sendChatMessage(
           state.chatId,
-          this.teamsMessagingService.buildMissionUnlockedMessage(mission.title, category?.title ?? mission.categoryId)
+          this.teamsMessagingService.buildMissionUnlockedMessage(
+            mission.title,
+            category?.title ?? mission.categoryId,
+            requiredCount
+          )
         );
       }
     }

@@ -11,7 +11,6 @@ import { OnboardingController } from "./controllers/onboardingController";
 import { errorHandler } from "./middlewares/errorHandler";
 import { createOnboardingRouter } from "./routes/onboardingRoutes";
 import { OnboardingConfigLoader } from "./services/onboardingConfigLoader";
-import { LocalMissionAssignmentService } from "./services/localMissionAssignmentService";
 import { OnboarderDirectoryService } from "./services/onboarderDirectoryService";
 import { registerOnboardingSchedulers } from "./services/onboardingScheduler";
 import { OnboardingWorkflowService } from "./services/onboardingWorkflowService";
@@ -49,8 +48,9 @@ const workflow = new OnboardingWorkflowService(
 );
 const bot = new TeamsOnboardingBot(
   new BotMessageController(
-    new LocalMissionAssignmentService(configLoader),
-    new OnboarderDirectoryService()
+    workflow,
+    new OnboarderDirectoryService(),
+    configLoader
   )
 );
 const onboardingController = new OnboardingController(workflow);
